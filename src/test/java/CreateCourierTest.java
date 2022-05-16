@@ -1,6 +1,7 @@
 import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -9,12 +10,13 @@ import static org.hamcrest.Matchers.equalTo;
 public class CreateCourierTest {
 
     Courier courier = new Courier("tag2444", "pass244", "name");
+    int idCourier;
 
     @Before
     public void setUp() {
         RestAssured.baseURI = "http://qa-scooter.praktikum-services.ru";
-    }
 
+    }
 
     @Test
     @DisplayName("Check courier creation")
@@ -23,8 +25,7 @@ public class CreateCourierTest {
         CourierAction.createCourier(courier)
                 .then().assertThat().statusCode(201)
                 .body("ok", equalTo(true));
-        CourierAction.deleteCourier(CourierAction.getIdCourier(courier));
-
+        idCourier = CourierAction.getIdCourier(courier);
     }
 
     @Test
@@ -74,6 +75,13 @@ public class CreateCourierTest {
                 .then().assertThat().statusCode(400)
                 .body("message", equalTo("Недостаточно данных для создания учетной записи"));
 
+    }
+
+    @After
+    public void tearDown() {
+        if (idCourier > 0) {
+            CourierAction.deleteCourier(idCourier);
+        }
     }
 
 }
